@@ -1,6 +1,8 @@
-# hw3-tester
+# hw4-tester
 
 Tests for CS540 Spring 2021 HW4: Clustering
+
+# This is still under development. There will be an announcement on Discord once a working version is released
 
 ## Disclaimer
 
