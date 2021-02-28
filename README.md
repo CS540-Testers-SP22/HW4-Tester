@@ -26,7 +26,7 @@ $ python3 test.py
 
 Ideally, you should be running `test.py` using your terminal as this README describes. If you have an issue, first try running it that way. However, provided that `test.py`, `pokemon_stats.py`, and the 3 csvs are all in the same directory, it should work if you do `%run test.py` in Jupyter, or run it the same way you would run `pokemon_stats.py` in your editor (VS Code, Pycharm, Sublime, etc).
 
-#### These tests _do not_ check for `imshow_hac`. They only test `load_data`, `calculate_x_y`, `hac`, and `random_x_y`
+### These tests _do not_ check for `imshow_hac`. They only test `load_data`, `calculate_x_y`, `hac`, and `random_x_y`
 
 ## Disclaimer
 
