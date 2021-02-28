@@ -5,21 +5,33 @@ for the Fall 2020 semester
 Their version can be found here: https://github.com/cs540-testers/hw7-tester/
 '''
 
-__author__ = 'cs540-testers'
-__credits__ = ['Harrison Clark', 'Stephen Jasina', 'Saurabh Kulkarni',
-        'Alex Moon']
-version = 'v0.3'
+__maintainer__ = 'CS540-testers-SP21'
+__author__ = ['Nicholas Beninato']
+__credits__ = ['Harrison Clark', 'Stephen Jasina', 'Saurabh Kulkarni', 'Alex Moon']
+__version__ = '1.0'
 
 import unittest
+import sys
+from time import time
 import numpy as np
-import scipy.cluster.hierarchy
-from pokemon_stats import load_data, calculate_x_y, hac
+from scipy.cluster.hierarchy import linkage
+from pokemon_stats import load_data, calculate_x_y, hac, random_x_y
 
 tiebreak_csv_file = 'Tiebreak_Test.csv'
 random_csv_file = 'Random_Test.csv'
+pokemon_csv_file = 'Pokemon.csv'
 
-class TestLoadData(unittest.TestCase):
-    def test_load(self):
+def timeit(func):
+    def timed_func(*args, **kwargs):
+        t0 = time()
+        out = func(*args, **kwargs)
+        print(f'Ran {func.__name__}{" "*(30-len(func.__name__))}in {(time() - t0)*1000:.2f}ms')
+        return out
+    return timed_func
+
+class Test1LoadData(unittest.TestCase):
+    @timeit
+    def test1_load_data(self):
         pokemon = load_data(random_csv_file)
 
         # We should have a list
@@ -31,6 +43,9 @@ class TestLoadData(unittest.TestCase):
 
         # We should load exactly 20 pokemon
         self.assertEqual(len(pokemon), 20)
+
+        for row in pokemon:
+            self.assertTrue(all(k not in ['Legendary', 'Generation'] for k in row))
 
         # Check row 13 to make sure it contains what we expect
         row = pokemon[13]
@@ -65,8 +80,9 @@ def get_x_y_pairs(csv_file):
     '''
     return [calculate_x_y(stats) for stats in load_data(csv_file)]
 
-class TestCalculateXY(unittest.TestCase):
-    def test_calculate_xy(self):
+class Test2CalculateXY(unittest.TestCase):
+    @timeit
+    def test2_calculate_x_y(self):
         x_y_pairs = get_x_y_pairs(random_csv_file)
         expected_x_y_pairs = [(318, 172), (197, 165), (256, 276), (243, 300),
                 (272, 256), (125, 403), (280, 362), (374, 85), (326, 554),
@@ -78,9 +94,29 @@ class TestCalculateXY(unittest.TestCase):
             self.assertIsInstance(x_y_pair, tuple)
             self.assertEqual(x_y_pair, expected_x_y_pair)
 
+class Test3HAC(unittest.TestCase):
+    @timeit
+    def test3_pokemon_csv(self):
+        x_y_pairs = get_x_y_pairs(pokemon_csv_file)
+        computed = hac(x_y_pairs)
 
-class TestHAC(unittest.TestCase):
-    def test_randomized(self):
+        # hac should return an numpy array of the right shape
+        self.assertIsInstance(computed, np.ndarray)
+        self.assertEqual(np.shape(computed), (19, 4))
+
+        # The third column should be increasing
+        for i in range(18):
+            self.assertGreaterEqual(computed[i + 1, 2], computed[i, 2])
+
+        # Verify hac operates exactly as linkage does - giving leeway for tiebreaker
+        expected = linkage(x_y_pairs)
+        self.assertTrue(np.allclose(computed[computed[:,0].argsort()], 
+                                    expected[expected[:,0].argsort()]))
+        self.assertTrue(np.allclose(computed[computed[:,1].argsort()], 
+                                    expected[expected[:,1].argsort()]))
+
+    @timeit
+    def test4_randomized(self):
         x_y_pairs = get_x_y_pairs(random_csv_file)
         computed = hac(x_y_pairs)
 
@@ -93,14 +129,18 @@ class TestHAC(unittest.TestCase):
             self.assertGreaterEqual(computed[i + 1, 2], computed[i, 2])
 
         # Verify hac operates exactly as linkage does
-        expected = scipy.cluster.hierarchy.linkage(x_y_pairs)
+        expected = linkage(x_y_pairs)
         self.assertTrue(np.all(np.isclose(computed, expected)))
 
-    def test_tiebreak(self):
+    @timeit
+    def test5_tiebreak(self):
         x_y_pairs = get_x_y_pairs(tiebreak_csv_file)
         computed = hac(x_y_pairs)
         expected_cluster_sizes \
                 = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 8, 8, 12, 20]
+
+        # chose lowest cluster index for the first position
+        # if still tied, chose lowest cluster index for the second position
         for i in range(np.shape(computed)[0]):
             row = np.array(computed[i,:]).flatten()
             self.assertEqual(row[0], 2 * i)
@@ -108,8 +148,26 @@ class TestHAC(unittest.TestCase):
             self.assertEqual(row[2], 0)
             self.assertEqual(row[3], expected_cluster_sizes[i])
 
+class Test4RandomXY(unittest.TestCase):
+    @timeit
+    def test6_random_x_y(self):
+        # empty list
+        self.assertEqual(random_x_y(0), [])
+        
+        # various values of m
+        for m in range(0, 11, 2):
+            x_y_pairs = random_x_y(2**m)
+            # x_y_pairs is a list with length 2**m
+            self.assertIsInstance(x_y_pairs, list)
+            self.assertEqual(len(x_y_pairs), 2**m)
+            # that list contains tuples
+            self.assertTrue(all(isinstance(x, tuple) for x in x_y_pairs))
+            # those tuples contain ints
+            self.assertTrue(all(isinstance(x, int) and isinstance(y, int) for x, y in x_y_pairs))
+            # all ints are > 0 and < 360
+            self.assertTrue(all(0 < x < 360 and 0 < y < 360 for x, y in x_y_pairs))
 
 if __name__ == '__main__':
-    print('Homework 7 Tester Version', version)
+    print(f'Running CS540 SP21 HW4 tester v{__version__}')
 
-    unittest.main()
+    unittest.main(argv=sys.argv)
