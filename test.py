@@ -8,12 +8,14 @@ Their version can be found here: https://github.com/cs540-testers/hw7-tester/
 __maintainer__ = 'CS540-testers-SP21'
 __author__ = ['Nicholas Beninato']
 __credits__ = ['Harrison Clark', 'Stephen Jasina', 'Saurabh Kulkarni', 'Alex Moon']
-__version__ = '1.1'
+__version__ = '1.0.1'
 
 import unittest
 import sys
 import math
 from time import time
+from urllib.request import urlopen
+import urllib
 import numpy as np
 from scipy.cluster.hierarchy import linkage
 from pokemon_stats import load_data, calculate_x_y, hac, random_x_y
@@ -195,7 +197,25 @@ class Test4RandomXY(unittest.TestCase):
             # all ints are > 0 and < 360
             self.assertTrue(all(0 < x < 360 and 0 < y < 360 for x, y in x_y_pairs))
 
+
+def get_versions():
+    current = __version__
+    to_tuple = lambda x: tuple(map(int, x.split('.')))
+    try:
+        with urlopen('https://raw.githubusercontent.com/CS540-testers-SP21/hw4-tester/master/.version') as f:
+            if f.status != 200:
+                raise Exception
+            latest = f.read().decode('utf-8')
+    except Exception as e:
+        print('Erorr checking for latest version') # very descriptive error messages
+        return to_tuple(current), to_tuple(current) # ignoring errors probably isn't the best idea tbh
+    return to_tuple(current), to_tuple(latest)
+
 if __name__ == '__main__':
     print(f'Running CS540 SP21 HW4 tester v{__version__}')
-
+    current, latest = get_versions()
+    to_v_str = lambda x : '.'.join(map(str, x))
+    if current < latest:
+        print(f'A newer version of this tester (v{to_v_str(latest)}) is available. You are current running v{to_v_str(current)}\n')
+        print('You can download the latest version at https://github.com/CS540-testers-SP21/hw4-tester\n')
     unittest.main(argv=sys.argv)

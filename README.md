@@ -4,6 +4,9 @@ Tests for CS540 Spring 2021 HW4: Clustering
 
 ## Changes
 
+### V1.1.1
+ - check for latest version
+
 ### V1.1
  - allow for either `np.matrix` or `np.array` return value from `hac`
  - add test to see if `hac` filters out invalid points
