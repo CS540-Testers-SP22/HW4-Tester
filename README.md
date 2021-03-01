@@ -2,6 +2,12 @@
 
 Tests for CS540 Spring 2021 HW4: Clustering
 
+## Changes
+
+### V1.1
+ - allow for either `np.matrix` or `np.array` return value from `hac`
+ - add test to see if `hac` filters out invalid points
+
 ## Usage
 
 Download [test.py](test.py), [Random_Test.csv](Random_Test.csv), and [Tiebreak_Test.csv](Tiebreak_Test.csv) and move them into the directory that contains `pokemon_stats.py` and `Pokemon.csv`

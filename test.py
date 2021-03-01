@@ -8,10 +8,11 @@ Their version can be found here: https://github.com/cs540-testers/hw7-tester/
 __maintainer__ = 'CS540-testers-SP21'
 __author__ = ['Nicholas Beninato']
 __credits__ = ['Harrison Clark', 'Stephen Jasina', 'Saurabh Kulkarni', 'Alex Moon']
-__version__ = '1.0'
+__version__ = '1.1'
 
 import unittest
 import sys
+import math
 from time import time
 import numpy as np
 from scipy.cluster.hierarchy import linkage
@@ -100,9 +101,10 @@ class Test3HAC(unittest.TestCase):
         x_y_pairs = get_x_y_pairs(pokemon_csv_file)
         computed = hac(x_y_pairs)
 
-        # hac should return an numpy array of the right shape
-        self.assertIsInstance(computed, np.ndarray)
+        # hac should return an numpy array or matrix of the right shape
+        self.assertTrue(isinstance(computed, np.ndarray) or isinstance(computed, np.matrix))
         self.assertEqual(np.shape(computed), (19, 4))
+        computed = np.array(computed)
 
         # The third column should be increasing
         for i in range(18):
@@ -120,9 +122,10 @@ class Test3HAC(unittest.TestCase):
         x_y_pairs = get_x_y_pairs(random_csv_file)
         computed = hac(x_y_pairs)
 
-        # hac should return an numpy array of the right shape
-        self.assertIsInstance(computed, np.ndarray)
+        # hac should return an numpy array or matrix of the right shape
+        self.assertTrue(isinstance(computed, np.ndarray) or isinstance(computed, np.matrix))
         self.assertEqual(np.shape(computed), (19, 4))
+        computed = np.array(computed)
 
         # The third column should be increasing
         for i in range(18):
@@ -130,6 +133,31 @@ class Test3HAC(unittest.TestCase):
 
         # Verify hac operates exactly as linkage does
         expected = linkage(x_y_pairs)
+        self.assertTrue(np.all(np.isclose(computed, expected)))
+
+    @timeit
+    def test5_filter_finite(self):
+        x_y_pairs = [(0,0), (1,1), (math.inf, 9), (9, math.inf),
+                     (-math.inf, 2), (2, -math.inf), (3.2, -20),
+                     (float("nan"), 0), (0, float("nan")), (7, 7),
+                     (float("inf"), 100), (100, float("inf")), (4, 0),
+                     (float("-inf"), 1), (1, float("inf")), (4, 0),
+                     (0.0, 0.1), (-3.9, 27)]
+        computed = hac(x_y_pairs)
+
+        # hac should return an numpy array or matrix of the right shape
+        self.assertTrue(isinstance(computed, np.ndarray) or isinstance(computed, np.matrix))
+        self.assertEqual(np.shape(computed), (7, 4))
+        computed = np.array(computed)
+
+        # The third column should be increasing
+        for i in range(6):
+            self.assertGreaterEqual(computed[i + 1, 2], computed[i, 2])
+
+        # Verify hac operates exactly as linkage does
+        expected = linkage([(0, 0), (1, 1), (3.2, -20), (7, 7),
+                            (4, 0), (4, 0), (0.0, 0.1), (-3.9, 27)])
+
         self.assertTrue(np.all(np.isclose(computed, expected)))
 
     @timeit
