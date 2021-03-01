@@ -8,7 +8,7 @@ Their version can be found here: https://github.com/cs540-testers/hw7-tester/
 __maintainer__ = 'CS540-testers-SP21'
 __author__ = ['Nicholas Beninato']
 __credits__ = ['Harrison Clark', 'Stephen Jasina', 'Saurabh Kulkarni', 'Alex Moon']
-__version__ = '1.1.1'
+__version__ = '1.2'
 
 import unittest
 import sys
@@ -163,11 +163,10 @@ class Test3HAC(unittest.TestCase):
         self.assertTrue(np.all(np.isclose(computed, expected)))
 
     @timeit
-    def test5_tiebreak(self):
+    def test6_tiebreak(self):
         x_y_pairs = get_x_y_pairs(tiebreak_csv_file)
         computed = hac(x_y_pairs)
-        expected_cluster_sizes \
-                = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 8, 8, 12, 20]
+        expected_cluster_sizes = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 4, 4, 4, 4, 4, 8, 8, 12, 20]
 
         # chose lowest cluster index for the first position
         # if still tied, chose lowest cluster index for the second position
@@ -178,9 +177,28 @@ class Test3HAC(unittest.TestCase):
             self.assertEqual(row[2], 0)
             self.assertEqual(row[3], expected_cluster_sizes[i])
 
+    @timeit
+    def test7_more_than_20(self):
+        n_points = 80
+        x_y_pairs = [(x**2, x**2) for x in range(0, n_points)]
+        computed = hac(x_y_pairs)
+        computed = np.array(computed)
+
+        # The third column should be increasing
+        for i in range(n_points - 2):
+            self.assertGreaterEqual(computed[i + 1, 2], computed[i, 2])
+
+        # first row
+        self.assertTrue(np.allclose(computed[0], [0,1,2**.5, 2]))
+        for i, row in enumerate(computed[1:,:]):
+            self.assertEqual(row[0], i + 2)
+            self.assertEqual(row[1], i + n_points)
+            self.assertTrue(np.isclose(row[2], ((i+i+2)**2 + (i+i+4)**2 - 2)**0.5))
+            self.assertEqual(row[3], i + 3)
+
 class Test4RandomXY(unittest.TestCase):
     @timeit
-    def test6_random_x_y(self):
+    def test8_random_x_y(self):
         # empty list
         self.assertEqual(random_x_y(0), [])
         
@@ -196,7 +214,6 @@ class Test4RandomXY(unittest.TestCase):
             self.assertTrue(all(isinstance(x, int) and isinstance(y, int) for x, y in x_y_pairs))
             # all ints are > 0 and < 360
             self.assertTrue(all(0 < x < 360 and 0 < y < 360 for x, y in x_y_pairs))
-
 
 def get_versions():
     current = __version__
