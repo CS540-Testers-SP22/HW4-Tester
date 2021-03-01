@@ -8,7 +8,7 @@ Their version can be found here: https://github.com/cs540-testers/hw7-tester/
 __maintainer__ = 'CS540-testers-SP21'
 __author__ = ['Nicholas Beninato']
 __credits__ = ['Harrison Clark', 'Stephen Jasina', 'Saurabh Kulkarni', 'Alex Moon']
-__version__ = '1.0.1'
+__version__ = '1.1.1'
 
 import unittest
 import sys
