@@ -59,7 +59,6 @@ class Test1LoadData(unittest.TestCase):
 
         # We should load exactly 20 pokemon
         self.assertEqual(len(pokemon), 20)
-        self.assertEqual(1, 0)
 
         for row in pokemon:
             self.assertTrue(all(k not in ['Legendary', 'Generation'] for k in row))
@@ -112,7 +111,6 @@ class Test2CalculateXY(unittest.TestCase):
         for x_y_pair, expected_x_y_pair in zip(x_y_pairs, expected_x_y_pairs):
             self.assertIsInstance(x_y_pair, tuple)
             self.assertEqual(x_y_pair, expected_x_y_pair)
-        raise Exception
         return True
 
 class Test3HAC(unittest.TestCase):
@@ -220,7 +218,6 @@ class Test3HAC(unittest.TestCase):
             self.assertEqual(row[1], i + n_points)
             self.assertTrue(np.isclose(row[2], ((i+i+2)**2 + (i+i+4)**2 - 2)**0.5))
             self.assertEqual(row[3], i + 3)
-        self.assertEqual(1, 0)
 
         return True
 
