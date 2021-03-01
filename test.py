@@ -8,14 +8,13 @@ Their version can be found here: https://github.com/cs540-testers/hw7-tester/
 __maintainer__ = 'CS540-testers-SP21'
 __author__ = ['Nicholas Beninato']
 __credits__ = ['Harrison Clark', 'Stephen Jasina', 'Saurabh Kulkarni', 'Alex Moon']
-__version__ = '1.2'
+__version__ = '1.3'
 
 import unittest
 import sys
 import math
 from time import time
 from urllib.request import urlopen
-import urllib
 import numpy as np
 from scipy.cluster.hierarchy import linkage
 from pokemon_stats import load_data, calculate_x_y, hac, random_x_y
@@ -24,12 +23,26 @@ tiebreak_csv_file = 'Tiebreak_Test.csv'
 random_csv_file = 'Random_Test.csv'
 pokemon_csv_file = 'Pokemon.csv'
 
+failures = []
+errors = []
+test_output = []
+
 def timeit(func):
     def timed_func(*args, **kwargs):
+        global failures, errors
         t0 = time()
-        out = func(*args, **kwargs)
-        print(f'Ran {func.__name__}{" "*(30-len(func.__name__))}in {(time() - t0)*1000:.2f}ms')
-        return out
+        try:
+            out = func(*args, **kwargs)
+            runtime = time() - t0
+        except AssertionError as e:
+            test_output.append(f'FAILED {func.__name__}')
+            failures += [func.__name__]
+            raise e
+        except Exception as e:
+            test_output.append(f'ERROR  {func.__name__}')
+            errors += [func.__name__]
+            raise e
+        test_output.append(f'PASSED {func.__name__}{" "*(22-len(func.__name__))}in {(runtime)*1000:.2f}ms')
     return timed_func
 
 class Test1LoadData(unittest.TestCase):
@@ -46,6 +59,7 @@ class Test1LoadData(unittest.TestCase):
 
         # We should load exactly 20 pokemon
         self.assertEqual(len(pokemon), 20)
+        self.assertEqual(1, 0)
 
         for row in pokemon:
             self.assertTrue(all(k not in ['Legendary', 'Generation'] for k in row))
@@ -76,6 +90,8 @@ class Test1LoadData(unittest.TestCase):
         for k in row:
             self.assertIn(k, expected_row)
 
+        return True
+
 def get_x_y_pairs(csv_file):
     '''
     Take in a csv file name and return a list of (x, y) pairs corresponding to
@@ -96,6 +112,8 @@ class Test2CalculateXY(unittest.TestCase):
         for x_y_pair, expected_x_y_pair in zip(x_y_pairs, expected_x_y_pairs):
             self.assertIsInstance(x_y_pair, tuple)
             self.assertEqual(x_y_pair, expected_x_y_pair)
+        raise Exception
+        return True
 
 class Test3HAC(unittest.TestCase):
     @timeit
@@ -118,6 +136,7 @@ class Test3HAC(unittest.TestCase):
                                     expected[expected[:,0].argsort()]))
         self.assertTrue(np.allclose(computed[computed[:,1].argsort()], 
                                     expected[expected[:,1].argsort()]))
+        return True
 
     @timeit
     def test4_randomized(self):
@@ -136,6 +155,8 @@ class Test3HAC(unittest.TestCase):
         # Verify hac operates exactly as linkage does
         expected = linkage(x_y_pairs)
         self.assertTrue(np.all(np.isclose(computed, expected)))
+
+        return True
 
     @timeit
     def test5_filter_finite(self):
@@ -162,6 +183,8 @@ class Test3HAC(unittest.TestCase):
 
         self.assertTrue(np.all(np.isclose(computed, expected)))
 
+        return True
+
     @timeit
     def test6_tiebreak(self):
         x_y_pairs = get_x_y_pairs(tiebreak_csv_file)
@@ -176,6 +199,8 @@ class Test3HAC(unittest.TestCase):
             self.assertEqual(row[1], 2 * i + 1)
             self.assertEqual(row[2], 0)
             self.assertEqual(row[3], expected_cluster_sizes[i])
+
+        return True
 
     @timeit
     def test7_more_than_20(self):
@@ -195,6 +220,9 @@ class Test3HAC(unittest.TestCase):
             self.assertEqual(row[1], i + n_points)
             self.assertTrue(np.isclose(row[2], ((i+i+2)**2 + (i+i+4)**2 - 2)**0.5))
             self.assertEqual(row[3], i + 3)
+        self.assertEqual(1, 0)
+
+        return True
 
 class Test4RandomXY(unittest.TestCase):
     @timeit
@@ -215,6 +243,8 @@ class Test4RandomXY(unittest.TestCase):
             # all ints are > 0 and < 360
             self.assertTrue(all(0 < x < 360 and 0 < y < 360 for x, y in x_y_pairs))
 
+        return True
+
 def get_versions():
     current = __version__
     to_tuple = lambda x: tuple(map(int, x.split('.')))
@@ -229,10 +259,24 @@ def get_versions():
     return to_tuple(current), to_tuple(latest)
 
 if __name__ == '__main__':
-    print(f'Running CS540 SP21 HW4 tester v{__version__}')
+    print(f'Running CS540 SP21 HW4 tester v{__version__}\n')
+
     current, latest = get_versions()
     to_v_str = lambda x : '.'.join(map(str, x))
     if current < latest:
         print(f'A newer version of this tester (v{to_v_str(latest)}) is available. You are current running v{to_v_str(current)}\n')
         print('You can download the latest version at https://github.com/CS540-testers-SP21/hw4-tester\n')
-    unittest.main(argv=sys.argv)
+    
+    unittest.main(argv=sys.argv, exit=False)
+    
+    for message in test_output:
+        print(message)
+    print()
+    if not failures and not errors:
+        print('\nPassed all tests successfully\n')
+    if failures:
+        print('The following tests failed:\n' + '\n'.join(failures) + '\n')
+    if errors:
+        print('The following tests had exceptions when running:\n' + '\n'.join(errors) + '\n')
+    if failures or errors:
+        print('Please see the Traceback above for where there were issues')

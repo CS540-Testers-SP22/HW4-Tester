@@ -4,6 +4,9 @@ Tests for CS540 Spring 2021 HW4: Clustering
 
 ## Changes
 
+### V1.3
+ - clarify error messages
+
 ### V1.2
  - test more than 20 points
 
