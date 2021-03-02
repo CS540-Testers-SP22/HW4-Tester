@@ -156,7 +156,7 @@ class Test3HAC(unittest.TestCase):
                      (-math.inf, 2), (2, -math.inf), (3.2, -20),
                      (float("nan"), 0), (0, float("nan")), (7, 7),
                      (float("inf"), 100), (100, float("inf")), (4, 0),
-                     (float("-inf"), 1), (1, float("inf")), (4, 0),
+                     (float("-inf"), 1), (1, float("-inf")), (4, 0),
                      (0.0, 0.1), (-3.9, 27)]
         computed = hac(x_y_pairs)
         
@@ -180,16 +180,13 @@ class Test3HAC(unittest.TestCase):
             self.assertGreaterEqual(computed[i + 1, 2], computed[i, 2])
 
         # Verify hac operates exactly as linkage does
-        points = [(0, 0), (1, 1), (3.2, -20), (7, 7),
-                  (4, 0), (4, 0), (0.0, 0.1), (-3.9, 27)]
-
         if no_floats:
             expected = linkage([(0, 0), (1, 1), (7, 7), (4, 0), (4, 0)])
         else:
             expected = linkage([(0, 0), (1, 1), (3.2, -20), (7, 7),
                                 (4, 0), (4, 0), (0.0, 0.1), (-3.9, 27)])
 
-        self.assertTrue(np.all(np.isclose(computed, expected)))
+        self.assertTrue(np.allclose(computed, expected))
 
     @timeit
     def test6_tiebreak(self):
