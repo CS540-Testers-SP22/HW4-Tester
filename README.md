@@ -4,6 +4,9 @@ Tests for CS540 Spring 2021 HW4: Clustering
 
 ## Changes
 
+### V1.4
+ - make float support optional (still needs to remove NaN/inf)
+
 ### V1.3
  - clarify error messages
 

@@ -8,7 +8,7 @@ Their version can be found here: https://github.com/cs540-testers/hw7-tester/
 __maintainer__ = 'CS540-testers-SP21'
 __author__ = ['Nicholas Beninato']
 __credits__ = ['Harrison Clark', 'Stephen Jasina', 'Saurabh Kulkarni', 'Alex Moon']
-__version__ = '1.3'
+__version__ = '1.4'
 
 import unittest
 import sys
@@ -89,8 +89,6 @@ class Test1LoadData(unittest.TestCase):
         for k in row:
             self.assertIn(k, expected_row)
 
-        return True
-
 def get_x_y_pairs(csv_file):
     '''
     Take in a csv file name and return a list of (x, y) pairs corresponding to
@@ -111,7 +109,6 @@ class Test2CalculateXY(unittest.TestCase):
         for x_y_pair, expected_x_y_pair in zip(x_y_pairs, expected_x_y_pairs):
             self.assertIsInstance(x_y_pair, tuple)
             self.assertEqual(x_y_pair, expected_x_y_pair)
-        return True
 
 class Test3HAC(unittest.TestCase):
     @timeit
@@ -134,7 +131,6 @@ class Test3HAC(unittest.TestCase):
                                     expected[expected[:,0].argsort()]))
         self.assertTrue(np.allclose(computed[computed[:,1].argsort()], 
                                     expected[expected[:,1].argsort()]))
-        return True
 
     @timeit
     def test4_randomized(self):
@@ -154,8 +150,6 @@ class Test3HAC(unittest.TestCase):
         expected = linkage(x_y_pairs)
         self.assertTrue(np.all(np.isclose(computed, expected)))
 
-        return True
-
     @timeit
     def test5_filter_finite(self):
         x_y_pairs = [(0,0), (1,1), (math.inf, 9), (9, math.inf),
@@ -165,23 +159,37 @@ class Test3HAC(unittest.TestCase):
                      (float("-inf"), 1), (1, float("inf")), (4, 0),
                      (0.0, 0.1), (-3.9, 27)]
         computed = hac(x_y_pairs)
+        
+        # floats are optional
+        no_floats = False
+        if len(computed) == 4:
+            no_floats = True
 
         # hac should return an numpy array or matrix of the right shape
         self.assertTrue(isinstance(computed, np.ndarray) or isinstance(computed, np.matrix))
-        self.assertEqual(np.shape(computed), (7, 4))
+
+        if no_floats:
+            self.assertEqual(np.shape(computed), (4, 4))
+        else:
+            self.assertEqual(np.shape(computed), (7, 4))
+        
         computed = np.array(computed)
 
         # The third column should be increasing
-        for i in range(6):
+        for i in range(len(computed) - 1):
             self.assertGreaterEqual(computed[i + 1, 2], computed[i, 2])
 
         # Verify hac operates exactly as linkage does
-        expected = linkage([(0, 0), (1, 1), (3.2, -20), (7, 7),
-                            (4, 0), (4, 0), (0.0, 0.1), (-3.9, 27)])
+        points = [(0, 0), (1, 1), (3.2, -20), (7, 7),
+                  (4, 0), (4, 0), (0.0, 0.1), (-3.9, 27)]
+
+        if no_floats:
+            expected = linkage([(0, 0), (1, 1), (7, 7), (4, 0), (4, 0)])
+        else:
+            expected = linkage([(0, 0), (1, 1), (3.2, -20), (7, 7),
+                                (4, 0), (4, 0), (0.0, 0.1), (-3.9, 27)])
 
         self.assertTrue(np.all(np.isclose(computed, expected)))
-
-        return True
 
     @timeit
     def test6_tiebreak(self):
@@ -197,8 +205,6 @@ class Test3HAC(unittest.TestCase):
             self.assertEqual(row[1], 2 * i + 1)
             self.assertEqual(row[2], 0)
             self.assertEqual(row[3], expected_cluster_sizes[i])
-
-        return True
 
     @timeit
     def test7_more_than_20(self):
@@ -219,8 +225,6 @@ class Test3HAC(unittest.TestCase):
             self.assertTrue(np.isclose(row[2], ((i+i+2)**2 + (i+i+4)**2 - 2)**0.5))
             self.assertEqual(row[3], i + 3)
 
-        return True
-
 class Test4RandomXY(unittest.TestCase):
     @timeit
     def test8_random_x_y(self):
@@ -239,8 +243,6 @@ class Test4RandomXY(unittest.TestCase):
             self.assertTrue(all(isinstance(x, int) and isinstance(y, int) for x, y in x_y_pairs))
             # all ints are > 0 and < 360
             self.assertTrue(all(0 < x < 360 and 0 < y < 360 for x, y in x_y_pairs))
-
-        return True
 
 def get_versions():
     current = __version__
