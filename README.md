@@ -42,4 +42,4 @@ These tests are not endorsed or created by anyone working in an official capacit
 
 By running `test.py`, you are executing code you downloaded from the internet. Back up your files and take a look at what you are running first.
 
-If you have comments or questions, create an issue at [https://github.com/CS540-Testers-SP22/HW4-Tester/pulls](https://github.com/CS540-Testers-SP22/HW4-Tester/pulls).
+For any comments, questions, and contribution -- create a pull request at [https://github.com/CS540-Testers-SP22/HW4-Tester/pulls](https://github.com/CS540-Testers-SP22/HW4-Tester/pulls).
