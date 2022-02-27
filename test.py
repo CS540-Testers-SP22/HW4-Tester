@@ -1,13 +1,17 @@
 '''
-These tests are inspired by and use code from the tests made by cs540-testers
-for the Fall 2020 semester
-
-Their version can be found here: https://github.com/cs540-testers/hw7-tester/
+These tests were inspired by and use code from the tests made by 
+cs540-testers-SP21 for the Spring 2021 semester.
+Their version (1.0) can be found here: 
+    https://github.com/cs540-testers-SP21/hw4-tester/
+    
+Subsequently, their version was also inspired by and use code from the tests
+made by cs540-testers for the Fall 2020 semester.
+Their version (original) can be found here: 
+    https://github.com/cs540-testers/hw7-tester
 '''
 
 __maintainer__ = 'CS540-Testers-SP22'
 __author__ = ['Jesus Vazquez']
-__credits__ = []
 __version__ = 'IN DEVELOPMENT'
 
 import unittest
