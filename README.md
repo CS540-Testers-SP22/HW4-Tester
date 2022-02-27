@@ -1,4 +1,4 @@
-# Unofficial HW4-Tester
+# HW4-Tester
 
 Tests for CS540 Spring 2022 HW4: Clustering
 
