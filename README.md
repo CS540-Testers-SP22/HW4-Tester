@@ -3,8 +3,9 @@
 Tests for CS540 Spring 2022 HW4: Clustering
 
 ## Changes
-
-### V .IN_DEVELOPMENT
+ - Updated to support Spring 2022 Implementation
+ 
+### Version .IN_DEVELOPMENT
 
 ## Usage
 
